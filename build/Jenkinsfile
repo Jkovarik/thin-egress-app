@@ -2,7 +2,6 @@ pipeline {
 
   // Environment Setup
   environment {
-    AWS_DEFAULT_REGION="us-east-1"
     AWSENV=""
     BUILDTAG="${APPTAG}-${NEWTAG}"
     CODE_ARCHIVE_FILENAME="${APPTAG}-code-${NEWTAG}.zip"
@@ -18,7 +17,6 @@ pipeline {
     JWTKEYSECRETNAME="${JWTKEYSECRETNAME}"
     JWTALGO="RS256"
     DOMAIN_NAME="${DOMAIN_NAME}"
-    DOMAINCERTARN="arn:aws:acm:us-east-1:765666652335:certificate/9f6cc382-c06c-4304-81a7-35a3c330f173"
     COOKIE_DOMAIN=".asf.alaska.edu"
   }
 
@@ -121,7 +119,7 @@ pipeline {
           sh 'sed -i -e "s;^Description:.*;Description: \\"TEA built and deployed by Jenkins job ${JOB_NAME}, currently at ${BUILDTAG}\\";" ./cloudformation/thin-egress-app.yaml'
           // Push out the CF Stack
           sh "echo '>> Deploying the CF stack'"
-          sh """ aws cloudformation deploy --profile=jenkins --region=us-east-1 \
+          sh """ aws cloudformation deploy --profile={AWS_PROFILE} --region=us-east-1 \
                      --stack-name ${STACKNAME} \
                      --template-file cloudformation/thin-egress-app.yaml \
                      --capabilities CAPABILITY_NAMED_IAM \
@@ -132,7 +130,7 @@ pipeline {
                        BucketMapFile=bucket_map_TEST_ngap2.yaml \
                        PublicBucketsFile=public_buckets_TEA.yaml \
                        PrivateBucketsFile=private_buckets_TEA.yaml \
-                       BucketnamePrefix=asf-ngap2-t- \
+                       BucketnamePrefix=${BUCKETNAME_PREFIX} \
                        DownloadRoleArn=${DOWNLOAD_ROLE_ARN} \
                        DownloadRoleInRegionArn=${DOWNLOAD_ROLE_ARN_INREGION} \
                        HtmlTemplateDir= \
@@ -144,7 +142,7 @@ pipeline {
                        VPCSubnetIDs= \
                        EnableApiGatewayLogToCloudWatch="False" \
                        DomainName=${DOMAIN_NAME} \
-                       DomainCertArn=${DOMAINCERTARN}  \
+                       DomainCertArn=${DOMAIN_CERT_ARN}  \
                        CookieDomain=${COOKIE_DOMAIN} \
                        LambdaCodeS3Key=${CODE_DIR}/${CODE_ARCHIVE_FILENAME} \
                        LambdaCodeDependencyArchive=${CODE_DIR}/${DEPENDENCYLAYERFILENAME} \
