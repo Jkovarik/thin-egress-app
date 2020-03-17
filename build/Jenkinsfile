@@ -119,7 +119,7 @@ pipeline {
           sh 'sed -i -e "s;^Description:.*;Description: \\"TEA built and deployed by Jenkins job ${JOB_NAME}, currently at ${BUILDTAG}\\";" ./cloudformation/thin-egress-app.yaml'
           // Push out the CF Stack
           sh "echo '>> Deploying the CF stack'"
-          sh """ aws cloudformation deploy --profile={AWS_PROFILE} --region=us-east-1 \
+          sh """ aws cloudformation deploy --profile={AWS_PROFILE} --region=${AWS_DEFAULT_REGION} \
                      --stack-name ${STACKNAME} \
                      --template-file cloudformation/thin-egress-app.yaml \
                      --capabilities CAPABILITY_NAMED_IAM \
